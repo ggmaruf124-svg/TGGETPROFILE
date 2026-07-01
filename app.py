@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body { background-color: #111; color: #fff; font-family: monospace; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #1a1a1a; padding: 20px; border-radius: 8px; }
+        .section { background: #111; padding: 15px; margin: 15px 0; border: 1px solid #333; }
+        h2 { color: #ff4500; margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+        th { background: #222; }
+        button { background: #ff4500; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+        button.reject { background: #555; }
+        input { background: #222; color: #fff; border: 1px solid #333; padding: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div style="display:flex; justify-content: space-between; align-items: center;">
+        <h2>SYSTEM ADMIN CONTROL</h2>
+        <a href="index.html" style="color: #aaa; text-decoration: none;">← Back to Checker</a>
+    </div>
+    
+    <!-- System Stats -->
+    <div class="section">
+        <h3>📊 System Overview</h3>
+        <div id="stats">Loading system statistics...</div>
+    </div>
+
+    <!-- Payment Gateways Settings -->
+    <div class="section">
+        <h3>⚙️ Gateway Management</h3>
+        <label>bKash: </label> <input type="text" id="bkashNum" value="01700000000"> 
+        <label>Nagad: </label> <input type="text" id="nagadNum" value="01900000000"> 
+        <button onclick="updateNumbers()">Update Gateways</button>
+    </div>
+
+    <!-- Recharge Requests -->
+    <div class="section">
+        <h3>📥 Pending Recharges</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Method</th>
+                    <th>Txn ID</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="requestTable">
+                <tr><td colspan="6">Loading requests...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const RENDER_API_URL = "http://127.0.0.1:8000"; // ⚠️ এখানেও আপনার Render এর লিংকটি দিবেন।
+
+    async function loadDashboard() {
+        try {
+            // Fetch Stats
+            const statsRes = await fetch(`${RENDER_API_URL}/admin/stats`);
+            const stats = await statsRes.json();
+            document.getElementById("stats").innerHTML = `
+                Total Registered Users: <strong>${stats.total_users}</strong> | 
+                Pending Requests: <strong>${stats.pending_requests}</strong> | 
+                Load Status: <span style="color:green;">${stats.system_load}</span>
+            `;
+
+            // Fetch Gateway Numbers
+            const numRes = await fetch(`${RENDER_API_URL}/api/settings/get_numbers`);
+            const nums = await numRes.json();
+            document.getElementById("bkashNum").value = nums.bkash_number;
+            document.getElementById("nagadNum").value = nums.nagad_number;
+
+            // Fetch Requests
+            const reqRes = await fetch(`${RENDER_API_URL}/admin/requests`);
+            const reqs = await reqRes.json();
+            const tbody = document.getElementById("requestTable");
+            tbody.innerHTML = "";
+
+            if(reqs.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6'>No payment history found.</td></tr>";
+                return;
+            }
+
+            reqs.forEach(r => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${r.username}</td>
+                    <td>${r.method}</td>
+                    <td>${r.transaction_id}</td>
+                    <td>${r.amount} BDT</td>
+                    <td style="color:${r.status==='Pending'?'orange':(r.status==='Approved'?'green':'red')}">${r.status}</td>
+                    <td>
+                        ${r.status === 'Pending' ? 
+                        `<button onclick="processRequest(${r.id}, 'approve')">Approve</button>
+                         <button class="reject" onclick="processRequest(${r.id}, 'reject')">Reject</button>` 
+                        : 'Processed'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+        } catch (e) {
+            console.error("Dashboard failed to sync:", e);
+        }
+    }
+
+    async function processRequest(id, action) {
+        if(!confirm(`Are you sure you want to ${action} this request?`)) return;
+        try {
+            const res = await fetch(`${RENDER_API_URL}/admin/requests/${action}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ request_id: id })
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadDashboard();
+        } catch (err) { alert("Failed to process request"); }
+    }
+
+    async function updateNumbers() {
+        const bkash = document.getElementById("bkashNum").value;
+        const nagad = document.getElementById("nagadNum").value;
+        try {
+            const res = await fetch(`${RENDER_API_URL}/admin/settings/update_numbers`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ bkash_number: bkash, nagad_number: nagad })
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadDashboard();
+        } catch (err) { alert("Failed to sync gateway parameters"); }
+    }
+
+    // Auto load on open
+    window.onload = loadDashboard;
+</script>
+</body>
+</html>
