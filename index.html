@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF Profile Checker</title>
+    <style>
+        body { background-color: #111; color: #fff; font-family: monospace; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #1a1a1a; padding: 20px; border-radius: 8px; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        input { background: #222; color: #fff; border: 1px solid #333; }
+        button { background: #ff4500; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #ff5722; }
+        .result-box { background: #000; padding: 15px; margin-top: 20px; min-height: 50px; border-left: 4px solid #ff4500; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+        img { max-width: 100%; margin-top: 10px; border: 1px solid #333; }
+        .nav { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .nav a { color: #ff4500; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="nav">
+        <strong>FF // CHECKER</strong>
+        <a href="admin.html">ADMIN PANEL</a>
+    </div>
+
+    <label>TARGET PLAYER UID</label>
+    <input type="text" id="uidInput" placeholder="Enter UID (e.g. 2189543733)">
+
+    <button onclick="fetchData('info')">PROFILE INFO</button>
+    <button onclick="fetchData('card')">PROFILE CARD</button>
+    <button onclick="fetchData('dress')">PLAYER DRESS</button>
+
+    <div class="result-box">
+        <strong>RESPONSE OUTPUT</strong>
+        <hr style="border-color: #222;">
+        <div id="output">[Awaiting Input]</div>
+    </div>
+</div>
+
+<script>
+    // ⚠️ আপনার রেণ্ডারের লাইভ লিংকটি এখানে বসাবেন (যেমন: https://your-app.onrender.com)
+    // লোকালহোস্টে টেস্ট করার সময় 'http://127.0.0.1:8000' রাখতে পারেন।
+    const RENDER_API_URL = "http://127.0.0.1:8000"; 
+
+    // সাময়িকভাবে ডেমো টোকেন জেনারেট করার জন্য (বাস্তবে লগইন পেজ থেকে আসবে)
+    // টেস্ট করার জন্য লোকাল স্টোরেজে একটি টোকেন সেট করে নিচ্ছি যদি না থাকে
+    if(!localStorage.getItem("token")) {
+        localStorage.setItem("token", "YOUR_JWT_TOKEN_HERE"); 
+    }
+
+    async function fetchData(type) {
+        const uid = document.getElementById("uidInput").value.trim();
+        const output = document.getElementById("output");
+        
+        if(!uid) {
+            output.innerHTML = "<span style='color:red;'>[ERROR] -> Please enter a UID</span>";
+            return;
+        }
+
+        output.innerHTML = "Fetching data, please wait...";
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch(`${RENDER_API_URL}/api/checker/${type}?uid=${uid}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.detail || "Server Error");
+            }
+
+            if (type === 'info') {
+                const data = await response.json();
+                output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } else if (type === 'card' || type === 'dress') {
+                // ইমেজ ডেটার ক্ষেত্রে Blob তৈরি করা
+                const blob = await response.blob();
+                const imgUrl = URL.createObjectURL(blob);
+                output.innerHTML = `<img src="${imgUrl}" alt="FF Artifact"><br><br><a href="${imgUrl}" download="ff_${type}_${uid}.png"><button>DOWNLOAD ARTIFACT</button></a>`;
+            }
+        } catch (error) {
+            output.innerHTML = `<span style='color:red;'>[ERROR] -> ${error.message}</span>`;
+        }
+    }
+</script>
+</body>
+</html>
