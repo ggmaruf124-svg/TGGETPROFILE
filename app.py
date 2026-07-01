@@ -6,7 +6,6 @@
     <title>Admin Dashboard</title>
     <style>
         body { background-color: #111; color: #fff; font-family: monospace; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: #1a1a1a; padding: 20px; border-radius: 8px; }
         .section { background: #111; padding: 15px; margin: 15px 0; border: 1px solid #333; }
         h2 { color: #ff4500; margin-top: 0; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
