@@ -3,92 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF Profile Checker</title>
+    <title>FF // PROFILE CHECKER</title>
     <style>
-        body { background-color: #111; color: #fff; font-family: monospace; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #1a1a1a; padding: 20px; border-radius: 8px; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
-        input { background: #222; color: #fff; border: 1px solid #333; }
-        button { background: #ff4500; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background: #ff5722; }
-        .result-box { background: #000; padding: 15px; margin-top: 20px; min-height: 50px; border-left: 4px solid #ff4500; }
-        pre { white-space: pre-wrap; word-wrap: break-word; }
-        img { max-width: 100%; margin-top: 10px; border: 1px solid #333; }
-        .nav { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .nav a { color: #ff4500; text-decoration: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e5e7;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #f5f5f7;
+            padding-bottom: 15px;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #000000;
+        }
+
+        .logo span {
+            color: #ff4500;
+        }
+
+        .admin-btn {
+            font-size: 12px;
+            text-decoration: none;
+            color: #86868b;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+
+        .admin-btn:hover {
+            color: #ff4500;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: #515154;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            background: #f5f5f7;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            color: #1d1d1f;
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus {
+            background: #ffffff;
+            border-color: #000000;
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 14px;
+            background: #1d1d1f;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #000000;
+            transform: translateY(-1px);
+        }
+
+        .action-btn.orange-btn {
+            background: #ff4500;
+        }
+
+        .action-btn.orange-btn:hover {
+            background: #e03d00;
+        }
+
+        .output-box {
+            background: #1d1d1f;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 100px;
+            color: #ffffff;
+            border: 1px solid #000000;
+        }
+
+        .output-box h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #86868b;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #323236;
+            padding-bottom: 6px;
+        }
+
+        #output {
+            font-size: 13px;
+            color: #f5f5f7;
+            word-break: break-all;
+            text-align: center;
+        }
+
+        #output pre {
+            text-align: left;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            background: #2c2c2e;
+            padding: 12px;
+            border-radius: 6px;
+            color: #3ade8b;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        #output img {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 2px solid #323236;
+            margin-top: 5px;
+        }
+
+        .download-btn {
+            margin-top: 12px;
+            width: 100%;
+            padding: 10px;
+            background: #ff4500;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="nav">
-        <strong>FF // CHECKER</strong>
-        <a href="admin.html">ADMIN PANEL</a>
+    <div class="container">
+        <div class="header">
+            <div class="logo">FF // <span>CHECKER</span></div>
+            <a href="admin.html" class="admin-btn">Admin Panel</a>
+        </div>
+
+        <div class="input-group">
+            <label for="uidInput">Target Player UID</label>
+            <input type="text" id="uidInput" placeholder="Enter UID (e.g. 2189543733)">
+        </div>
+
+        <div class="btn-list">
+            <button class="action-btn" onclick="fetchData('info')">Profile Info</button>
+            <button class="action-btn orange-btn" onclick="fetchData('card')">Profile Card</button>
+            <button class="action-btn" onclick="fetchData('dress')">Player Dress</button>
+        </div>
+
+        <div class="output-box">
+            <h3>Response Output</h3>
+            <div id="output">[Awaiting Input]</div>
+        </div>
     </div>
 
-    <label>TARGET PLAYER UID</label>
-    <input type="text" id="uidInput" placeholder="Enter UID (e.g. 2189543733)">
+    <script>
+        // ⚠️ আপনার রেন্ডারের লাইভ লিংকটি এখানে বসান (শেষে যেন বাড়তি / না থাকে)
+        const RENDER_API_URL = "https://tggetprofile.onrender.com"; 
 
-    <button onclick="fetchData('info')">PROFILE INFO</button>
-    <button onclick="fetchData('card')">PROFILE CARD</button>
-    <button onclick="fetchData('dress')">PLAYER DRESS</button>
+        async function fetchData(type) {
+            const uid = document.getElementById("uidInput").value.trim();
+            const output = document.getElementById("output");
+            
+            if(!uid) {
+                output.innerHTML = "<span style='color:#ff4500; font-weight:bold;'>[ERROR] -> Please enter a UID</span>";
+                return;
+            }
 
-    <div class="result-box">
-        <strong>RESPONSE OUTPUT</strong>
-        <hr style="border-color: #222;">
-        <div id="output">[Awaiting Input]</div>
-    </div>
-</div>
+            output.innerHTML = "<span style='color:#86868b;'>Fetching data, please wait...</span>";
 
-<script>
-    // ⚠️ আপনার রেণ্ডারের লাইভ লিংকটি এখানে বসাবেন (যেমন: https://your-app.onrender.com)
-    // লোকালহোস্টে টেস্ট করার সময় 'http://127.0.0.1:8000' রাখতে পারেন।
-    const RENDER_API_URL = "https://tggetprofile.onrender.com"; 
+            try {
+                const response = await fetch(`${RENDER_API_URL}/api/checker/${type}?uid=${uid}`, {
+                    method: "GET"
+                });
 
-    // সাময়িকভাবে ডেমো টোকেন জেনারেট করার জন্য (বাস্তবে লগইন পেজ থেকে আসবে)
-    // টেস্ট করার জন্য লোকাল স্টোরেজে একটি টোকেন সেট করে নিচ্ছি যদি না থাকে
-    if(!localStorage.getItem("token")) {
-        localStorage.setItem("token", "YOUR_JWT_TOKEN_HERE"); 
-    }
-
-    async function fetchData(type) {
-        const uid = document.getElementById("uidInput").value.trim();
-        const output = document.getElementById("output");
-        
-        if(!uid) {
-            output.innerHTML = "<span style='color:red;'>[ERROR] -> Please enter a UID</span>";
-            return;
-        }
-
-        output.innerHTML = "Fetching data, please wait...";
-        const token = localStorage.getItem("token");
-
-        try {
-            const response = await fetch(`${RENDER_API_URL}/api/checker/${type}?uid=${uid}`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || "Server Error");
                 }
-            });
 
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.detail || "Server Error");
+                if (type === 'info' || type === 'dress') {
+                    const data = await response.json();
+                    output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else if (type === 'card') {
+                    const blob = await response.blob();
+                    const imgUrl = URL.createObjectURL(blob);
+                    output.innerHTML = `
+                        <img src="${imgUrl}" alt="FF Card">
+                        <a href="${imgUrl}" download="ff_card_${uid}.png">
+                            <button class="download-btn">Download Artifact</button>
+                        </a>
+                    `;
+                }
+            } catch (error) {
+                output.innerHTML = `<span style='color:#ff4500; font-weight:bold;'>[ERROR] -> ${error.message}</span>`;
             }
-
-            if (type === 'info') {
-                const data = await response.json();
-                output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-            } else if (type === 'card' || type === 'dress') {
-                // ইমেজ ডেটার ক্ষেত্রে Blob তৈরি করা
-                const blob = await response.blob();
-                const imgUrl = URL.createObjectURL(blob);
-                output.innerHTML = `<img src="${imgUrl}" alt="FF Artifact"><br><br><a href="${imgUrl}" download="ff_${type}_${uid}.png"><button>DOWNLOAD ARTIFACT</button></a>`;
-            }
-        } catch (error) {
-            output.innerHTML = `<span style='color:red;'>[ERROR] -> ${error.message}</span>`;
         }
-    }
-</script>
+    </script>
 </body>
 </html>
