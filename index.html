@@ -221,7 +221,7 @@
 
     <script>
         // ⚠️ আপনার রেন্ডারের লাইভ লিংকটি এখানে বসান (শেষে যেন বাড়তি / না থাকে)
-        const RENDER_API_URL = "https://tggetprofile.onrender.com"; 
+        const RENDER_API_URL = "https://your-api-name.onrender.com"; 
 
         async function fetchData(type) {
             const uid = document.getElementById("uidInput").value.trim();
@@ -235,6 +235,7 @@
             output.innerHTML = "<span style='color:#86868b;'>Fetching data, please wait...</span>";
 
             try {
+                // টোকেন বা হেডার ছাড়া সরাসরি একদম ফ্রি রিকোয়েস্ট পাঠানো হচ্ছে
                 const response = await fetch(`${RENDER_API_URL}/api/checker/${type}?uid=${uid}`, {
                     method: "GET"
                 });
