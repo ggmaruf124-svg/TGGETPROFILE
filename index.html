@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF // PROFILE CHECKER</title>
+    <title>FF // PREMIUM PROFILE CHECKER</title>
     <style>
         * {
             margin: 0;
@@ -30,6 +30,15 @@
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             border: 1px solid #e5e5e7;
+        }
+
+        /* Auth Box Styles */
+        .auth-box {
+            display: block;
+        }
+
+        .main-dashboard {
+            display: none; /* লগইন না হওয়া পর্যন্ত লুকানো থাকবে */
         }
 
         .header {
@@ -64,6 +73,24 @@
 
         .admin-btn:hover {
             color: #ff4500;
+        }
+
+        /* User Info Bar */
+        .user-info-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #1d1d1f;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .user-info-bar span span {
+            color: #ff4500;
+            font-weight: 800;
         }
 
         .input-group {
@@ -134,6 +161,18 @@
             background: #e03d00;
         }
 
+        .toggle-text {
+            text-align: center;
+            font-size: 13px;
+            color: #86868b;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        
+        .toggle-text strong {
+            color: #000000;
+        }
+
         .output-box {
             background: #1d1d1f;
             border-radius: 10px;
@@ -192,40 +231,162 @@
             text-transform: uppercase;
             font-size: 12px;
         }
+        
+        #authMsg {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header">
-            <div class="logo">FF // <span>CHECKER</span></div>
-            <a href="admin.html" class="admin-btn">Admin Panel</a>
+        <div id="authBox" class="auth-box">
+            <div class="header">
+                <div class="logo" id="authTitle">USER // <span>LOGIN</span></div>
+            </div>
+            <div id="authMsg"></div>
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="usernameInput" placeholder="Enter username">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter password">
+            </div>
+            <button class="action-btn orange-btn" id="authBtn" onclick="handleAuth()">Login</button>
+            <div class="toggle-text" id="toggleAuth" onclick="toggleAuthMode()">Don't have an account? <strong>Register</strong></div>
         </div>
 
-        <div class="input-group">
-            <label for="uidInput">Target Player UID</label>
-            <input type="text" id="uidInput" placeholder="Enter UID (e.g. 2189543733)">
-        </div>
+        <div id="mainDashboard" class="main-dashboard">
+            <div class="header">
+                <div class="logo">FF // <span>CHECKER</span></div>
+                <a href="admin.html" class="admin-btn">Admin Panel</a>
+            </div>
 
-        <div class="btn-list">
-            <button class="action-btn" onclick="fetchData('info')">Profile Info</button>
-            <button class="action-btn orange-btn" onclick="fetchData('card')">Profile Card</button>
-            <button class="action-btn" onclick="fetchData('dress')">Player Dress</button>
-        </div>
+            <div class="user-info-bar">
+                <span id="displayUsername">User: Loading...</span>
+                <span>Points: <span id="displayCredits">0</span></span>
+            </div>
 
-        <div class="output-box">
-            <h3>Response Output</h3>
-            <div id="output">[Awaiting Input]</div>
+            <div class="input-group">
+                <label for="uidInput">Target Player UID</label>
+                <input type="text" id="uidInput" placeholder="Enter UID (e.g. 2189543733)">
+            </div>
+
+            <div class="btn-list">
+                <button class="action-btn" onclick="fetchData('info')">Profile Info</button>
+                <button class="action-btn orange-btn" onclick="fetchData('card')">Profile Card</button>
+                <button class="action-btn" onclick="fetchData('dress')">Player Dress</button>
+            </div>
+
+            <div class="output-box">
+                <h3>Response Output</h3>
+                <div id="output">[Awaiting Input]</div>
+            </div>
+            <div class="toggle-text" onclick="logout()" style="margin-top:20px; color:red;"><strong>Logout</strong></div>
         </div>
     </div>
 
     <script>
         // ⚠️ আপনার রেন্ডারের লাইভ লিংকটি এখানে বসান (শেষে যেন বাড়তি / না থাকে)
-        const RENDER_API_URL = "https://your-api-name.onrender.com"; 
+        const RENDER_API_URL = "https://tggetprofile.onrender.com"; 
 
+        let isLoginMode = true;
+
+        // পেজ লোড হওয়ার সাথে সাথে চেক করবে আগে থেকে লগইন করা আছে কি না
+        window.onload = function() {
+            const token = localStorage.getItem("token");
+            if (token) {
+                showDashboard();
+            }
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            const authTitle = document.getElementById("authTitle");
+            const authBtn = document.getElementById("authBtn");
+            const toggleAuth = document.getElementById("toggleAuth");
+            document.getElementById("authMsg").innerHTML = "";
+
+            if (isLoginMode) {
+                authTitle.innerHTML = "USER // <span>LOGIN</span>";
+                authBtn.innerText = "Login";
+                toggleAuth.innerHTML = "Don't have an account? <strong>Register</strong>";
+            } else {
+                authTitle.innerHTML = "USER // <span>REGISTER</span>";
+                authBtn.innerText = "Register";
+                toggleAuth.innerHTML = "Already have an account? <strong>Login</strong>";
+            }
+        }
+
+        // লগইন ও রেজিস্ট্রেশন হ্যান্ডলার
+        async function handleAuth() {
+            const username = document.getElementById("usernameInput").value.trim();
+            const password = document.getElementById("passwordInput").value.trim();
+            const authMsg = document.getElementById("authMsg");
+
+            if (!username || !password) {
+                authMsg.innerHTML = "<span style='color:red;'>Fill all fields!</span>";
+                return;
+            }
+
+            authMsg.innerHTML = "<span style='color:gray;'>Processing...</span>";
+            const endpoint = isLoginMode ? "/api/login" : "/api/register";
+
+            try {
+                const response = await fetch(`${RENDER_API_URL}${endpoint}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || "Authentication Failed");
+                }
+
+                if (isLoginMode) {
+                    localStorage.setItem("token", data.access_token);
+                    authMsg.innerHTML = "<span style='color:green;'>Success! Loading dashboard...</span>";
+                    setTimeout(showDashboard, 1000);
+                } else {
+                    authMsg.innerHTML = "<span style='color:green;'>Registered successfully! Please login.</span>";
+                    toggleAuthMode();
+                }
+            } catch (error) {
+                authMsg.innerHTML = `<span style='color:red;'>${error.message}</span>`;
+            }
+        }
+
+        // ড্যাশবোর্ড এবং পয়েন্ট দেখানোর ফাংশন
+        async function showDashboard() {
+            document.getElementById("authBox").style.display = "none";
+            document.getElementById("mainDashboard").style.display = "block";
+            
+            const token = localStorage.getItem("token");
+            try {
+                const res = await fetch(`${RENDER_API_URL}/api/user/me`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error();
+                const userData = await res.json();
+                
+                document.getElementById("displayUsername").innerText = `User: ${userData.username}`;
+                document.getElementById("displayCredits").innerText = userData.credits;
+            } catch (e) {
+                logout();
+            }
+        }
+
+        // আইডি চেকার ফেচ ফাংশন (টোকেনসহ রিকোয়েস্ট যাবে)
         async function fetchData(type) {
             const uid = document.getElementById("uidInput").value.trim();
             const output = document.getElementById("output");
+            const token = localStorage.getItem("token");
             
             if(!uid) {
                 output.innerHTML = "<span style='color:#ff4500; font-weight:bold;'>[ERROR] -> Please enter a UID</span>";
@@ -235,9 +396,9 @@
             output.innerHTML = "<span style='color:#86868b;'>Fetching data, please wait...</span>";
 
             try {
-                // টোকেন বা হেডার ছাড়া সরাসরি একদম ফ্রি রিকোয়েস্ট পাঠানো হচ্ছে
                 const response = await fetch(`${RENDER_API_URL}/api/checker/${type}?uid=${uid}`, {
-                    method: "GET"
+                    method: "GET",
+                    headers: { "Authorization": `Bearer ${token}` }
                 });
 
                 if (!response.ok) {
@@ -258,9 +419,22 @@
                         </a>
                     `;
                 }
+                
+                // প্রতি সার্চের পর পয়েন্ট লাইভ আপডেট করার জন্য
+                showDashboard();
+
             } catch (error) {
                 output.innerHTML = `<span style='color:#ff4500; font-weight:bold;'>[ERROR] -> ${error.message}</span>`;
             }
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            document.getElementById("authBox").style.display = "block";
+            document.getElementById("mainDashboard").style.display = "none";
+            document.getElementById("usernameInput").value = "";
+            document.getElementById("passwordInput").value = "";
+            document.getElementById("authMsg").innerHTML = "";
         }
     </script>
 </body>
