@@ -33,10 +33,12 @@ app.add_middleware(
 DB_PATH = "database.db"
 
 # 🗄️ ডাটাবেস এবং টেবিল তৈরি করার ফাংশন
+# 🗄️ পুরাতন ফাংশন দুটি পরিবর্তন করে এটি বসান:
+
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    # এখানে check_same_thread=False যুক্ত করা হয়েছে
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     cursor = conn.cursor()
-    # ইউজার টেবিল (ইউজারনেম, পাসওয়ার্ড এবং পয়েন্ট/ক্রেডিট রাখার জন্য)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +53,8 @@ def init_db():
 init_db()
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    # এখানেও check_same_thread=False যুক্ত করতে হবে
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     try:
         yield conn
